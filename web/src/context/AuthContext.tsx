@@ -13,8 +13,12 @@ import { useRouter } from "next/navigation";
 interface User {
   id: string;
   email: string;
-  name: string;
+  name: string | null;
+  username?: string | null;
+  phoneNumber?: string | null;
+  avatarUrl?: string | null;
   role: string;
+  status?: string;
 }
 
 interface AuthContextType {
@@ -27,43 +31,28 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+const REMEMBER_ME_KEY = "giftly.rememberMe";
+const REMEMBERED_EMAIL_KEY = "giftly.rememberedEmail";
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const REMEMBER_ME_KEY = "Giftly.rememberMe";
-  const REMEMBERED_EMAIL_KEY = "Giftly.rememberedEmail";
 
+  // On mount — check if already logged in via cookie
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/user", { credentials: "include" });
+        const res = await fetch("/api/auth/me", { credentials: "include" });
         if (res.ok) {
           const data = await res.json();
-          if (data.data?.user) {
-            setUser(data.data.user);
+          if (data.user) {
+            setUser(data.user);
             return;
           }
         }
-      }
-      catch {
-        
-      }
-      try {
-        const rememberMe = localStorage.getItem(REMEMBER_ME_KEY) === "true";
-        const rememberedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY);
-        if (rememberMe && rememberedEmail) {
-          setUser({
-            id: "remembered-user",
-            email: rememberedEmail,
-            name: "Returning User",
-            role: "sender",
-          });
-        }
       } catch {
-        
+        // Network error — not logged in
       } finally {
         setIsLoading(false);
       }
@@ -74,17 +63,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = useCallback(async (email: string, password: string, rememberMe = false) => {
     setIsLoading(true);
     try {
-      
-      
-      const mockUser = {
-        id: "mock-user-123",
-        email: email,
-        name: "Demo User",
-        role: "sender",
-      };
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
 
-      setUser(mockUser);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail ?? "Invalid email or password");
+      }
 
+      // Fetch real user data after login
+      const meRes = await fetch("/api/auth/me", { credentials: "include" });
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        setUser(meData.user);
+      }
+
+      // Persist remember me
       try {
         if (rememberMe) {
           localStorage.setItem(REMEMBER_ME_KEY, "true");
@@ -93,19 +91,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           localStorage.removeItem(REMEMBER_ME_KEY);
           localStorage.removeItem(REMEMBERED_EMAIL_KEY);
         }
-      } catch {
-        
-      }
+      } catch { /* localStorage unavailable */ }
 
-      
-      fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      }).catch(() => {
-        
-      });
     } finally {
       setIsLoading(false);
     }
@@ -117,23 +104,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         method: "POST",
         credentials: "include",
       });
-    } catch {
-      
-    }
+    } catch { /* ignore */ }
+
     setUser(null);
+
     try {
       localStorage.removeItem(REMEMBER_ME_KEY);
       localStorage.removeItem(REMEMBERED_EMAIL_KEY);
-    } catch {
-      
-    }
+    } catch { /* ignore */ }
+
     router.push("/auth/login");
   }, [router]);
 
   return (
-    <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, isLoading, login, logout }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

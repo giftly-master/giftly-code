@@ -20,6 +20,7 @@ import { POST as sendPhoneOtpPost } from "./api/auth/send-phone-otp/route";
 import { POST as sendVerificationPost } from "./api/auth/send-verification/route";
 import { POST as verifyEmailPost } from "./api/auth/verify-email/route";
 import { POST as verifyOtpPost } from "./api/auth/verify-otp/route";
+import { PATCH as patchUserMe } from "./api/users/me/route";
 
 export const apiRouter = Router();
 
@@ -43,4 +44,7 @@ apiRouter.post("/api/auth/verify-otp", makeExpressHandler(verifyOtpPost));
 
 // 2. Dashboard routes
 apiRouter.get("/api/dashboard/stats", makeExpressHandler(dashboardStatsGet));
+
+// 3. User routes
+apiRouter.patch("/api/users/me", makeExpressHandler(patchUserMe));
 

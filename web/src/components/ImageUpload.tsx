@@ -3,11 +3,13 @@
 import Image from "next/image";
 import { ChangeEvent, useState, HTMLAttributes } from "react";
 import clsx from "clsx";
+import { Camera } from "lucide-react";
 
 interface ImageUploadProps extends HTMLAttributes<HTMLDivElement> {
   onUpload?: (avatarUrl: string) => void;
   isUploading?: boolean;
   authToken?: string;
+  compact?: boolean;
 }
 
 const ImageUpload = ({
@@ -15,6 +17,7 @@ const ImageUpload = ({
   onUpload,
   isUploading = false,
   authToken,
+  compact = false,
   ...props
 }: ImageUploadProps) => {
   const [preview, setPreview] = useState<string | null>(null);
@@ -102,6 +105,18 @@ const ImageUpload = ({
     "relative rounded-3xl border-2 border-dashed border-[#E1E1E5] bg-[#F7F7FC] shadow-sm overflow-hidden",
     "aspect-[4/3]",
   );
+
+  if (compact) {
+    return (
+      <label className={clsx("cursor-pointer", className)} {...props}>
+        <div className="flex items-center gap-2 px-4 py-2.5 border border-[#E1E1E5] dark:border-gray-700 rounded-xl text-sm font-medium text-[#717182] hover:text-[#5A42DE] hover:border-[#5A42DE] transition-all">
+          <Camera className="w-4 h-4" />
+          Change photo
+        </div>
+        <input type="file" accept="image/jpeg,image/png" onChange={handleFileChange} className="hidden" />
+      </label>
+    );
+  }
 
   if (preview) {
     return (

@@ -1,16 +1,30 @@
+"use client";
+
 import { AccountBalanceCard } from "@/components/dashboard/dashboard/AccountBalanceCard";
 import { GiftCard, StatCard } from "@/components/dashboard/dashboard/GiftCard";
 import { TransactionTable } from "@/components/dashboard/dashboard/TransactionTable";
+import { useUser } from "@/hooks/useUser";
+import { DashboardSkeleton } from "@/components/Skeleton";
 
 export default function SenderDashboard() {
+  const { user, isLoading } = useUser();
+
+  if (isLoading) return <DashboardSkeleton />;
+
+  const greeting = user?.name
+    ? `Hello, ${user.name.split(" ")[0]}! 👋`
+    : user?.username
+    ? `Hello, @${user.username}! 👋`
+    : "Welcome back! 👋";
+
   return (
-    <div className="bg-[#F7F7FC] rounded-4xl p-6 h-full space-y-5">
+    <div className="bg-[#F7F7FC] dark:bg-[#1a1a24] rounded-4xl p-6 h-full space-y-5">
       <div>
-        <h1 className="text-2xl leading-8 font-medium text-[#18181B]">
-          Hello, Demo User!
+        <h1 className="text-2xl leading-8 font-medium text-[#18181B] dark:text-white">
+          {greeting}
         </h1>
-        <p className="text-sm font-normal text-[#18181B] leading-6 ">
-          Here’s an overview of your account
+        <p className="text-sm font-normal text-[#717182] dark:text-gray-400 leading-6">
+          Here's an overview of your account
         </p>
       </div>
       <div className="flex gap-5 lg:hidden overflow-auto">
@@ -33,7 +47,7 @@ export default function SenderDashboard() {
           textColor="text-[#5A42DE]"
         />
       </div>
-      <div className="flex gap-5  flex-col xl:flex-row">
+      <div className="flex gap-5 flex-col xl:flex-row">
         <AccountBalanceCard />
         <div className="w-full flex-1">
           <GiftCard />
