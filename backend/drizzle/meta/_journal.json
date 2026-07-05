@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1775739608685,
+      "tag": "0000_init_repair",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780262061192,
+      "tag": "0001_dapper_darkhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780557193754,
+      "tag": "0002_peaceful_tag",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" fill="none">
+  <!-- Gift box body -->
+  <rect x="4" y="22" width="36" height="24" rx="3" fill="#5A42DE"/>
+  <!-- Gift box lid -->
+  <rect x="2" y="14" width="40" height="10" rx="3" fill="#7B63F0"/>
+  <!-- Ribbon vertical -->
+  <rect x="18" y="14" width="8" height="32" fill="white" opacity="0.85"/>
+  <!-- Bow left loop -->
+  <path d="M22 14 C16 5 4 7 7 13 C10 18 19 15 22 14Z" fill="#9B7FFF"/>
+  <!-- Bow right loop -->
+  <path d="M22 14 C28 5 40 7 37 13 C34 18 25 15 22 14Z" fill="#9B7FFF"/>
+  <!-- Bow center knot -->
+  <circle cx="22" cy="14" r="3" fill="#7B63F0"/>
+  <!-- Wordmark -->
+  <text x="52" y="34" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="26" font-weight="800" fill="#18181B" letter-spacing="-0.8">Giftly</text>
+</svg>

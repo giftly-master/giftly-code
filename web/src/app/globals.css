@@ -1,0 +1,221 @@
+@import url("https://fonts.cdnfonts.com/css/br-firma");
+@import "tailwindcss";
+
+.font-br-firma {
+  font-family: "BR Firma", sans-serif;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.shimmer-animation {
+  animation: shimmer 2.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.2) 80%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shine-sweep {
+  0% { left: -100%; top: -100%; }
+  20% { left: 100%; top: 100%; }
+  100% { left: 100%; top: 100%; }
+}
+
+.animate-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shine::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(255, 255, 255, 0.1) 48%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.1) 52%,
+    transparent 55%
+  );
+  animation: shine-sweep 3s infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(95, 82, 255, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(95, 82, 255, 0.5); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes slide-down {
+  0% { transform: translateY(-100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-down {
+  display: inline-block;
+  animation: slide-down 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Minimum touch target size (44x44px) for WCAG 2.5.8 compliance */
+button,
+a,
+input[type="checkbox"],
+input[type="radio"],
+[role="button"],
+[role="link"],
+[role="tab"],
+[role="menuitem"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Icon-only buttons: ensure hit area via padding */
+button:has(svg:only-child),
+a:has(svg:only-child) {
+  padding: 10px;
+}
+
+/* ── Dark mode base styles ─────────────────────────────────────────── */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #F7F7FC;
+  --bg-card: #ffffff;
+  --text-primary: #18181B;
+  --text-secondary: #717182;
+  --border-color: #E1E1E5;
+}
+
+.dark {
+  --bg-primary: #0f0f13;
+  --bg-secondary: #1a1a24;
+  --bg-card: #1e1e2a;
+  --text-primary: #f4f4f8;
+  --text-secondary: #a0a0b0;
+  --border-color: #2e2e3e;
+}
+
+.dark body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Dashboard layout */
+.dark .bg-white {
+  background-color: var(--bg-card) !important;
+}
+
+.dark .bg-\[\#F7F7FC\] {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark .bg-\[\#F7F7F8\] {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark .bg-\[\#F8FAFF\] {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Text */
+.dark .text-\[\#18181B\] {
+  color: var(--text-primary) !important;
+}
+
+.dark .text-\[\#717182\] {
+  color: var(--text-secondary) !important;
+}
+
+.dark .text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+.dark .text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+.dark .text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+.dark .text-\[\#71717A\] {
+  color: var(--text-secondary) !important;
+}
+
+/* Borders */
+.dark .border-\[\#E1E1E5\] {
+  border-color: var(--border-color) !important;
+}
+
+.dark .border-gray-100 {
+  border-color: var(--border-color) !important;
+}
+
+.dark .border-\[\#C9CEFC\] {
+  border-color: #3a3a5c !important;
+}
+
+/* Inputs */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--text-secondary) !important;
+}
+
+/* Nav sidebar */
+.dark nav,
+.dark header {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Cards and rounded panels */
+.dark .rounded-2xl,
+.dark .rounded-xl,
+.dark .rounded-\[40px\] {
+  background-color: var(--bg-card);
+}
+
+/* Hover states */
+.dark .hover\:bg-gray-50:hover {
+  background-color: #2a2a36 !important;
+}
