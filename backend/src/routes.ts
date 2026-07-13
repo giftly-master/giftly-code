@@ -66,3 +66,7 @@ apiRouter.post("/api/faucet/claim", makeExpressHandler(faucetPost));
 import { GET as transactionsGet } from "./api/transactions/route";
 apiRouter.get("/api/transactions", makeExpressHandler(transactionsGet));
 
+// 7. Wallet
+import { GET as walletGet } from "./api/wallet/route";
+apiRouter.get("/api/wallet", makeExpressHandler(walletGet));
+

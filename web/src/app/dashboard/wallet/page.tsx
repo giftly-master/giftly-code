@@ -46,11 +46,13 @@ export default function WalletPage() {
   const fetchBalances = useCallback(async () => {
     setLoadingBalances(true);
     try {
-      const res = await fetch("/api/dashboard/stats", { credentials: "include" });
+      const res = await fetch("/api/wallet", { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
-        setBalances(data.stats?.accountBalance ?? []);
+        setBalances(data.wallets ?? []);
       }
+    } catch {
+      // ignore
     } finally {
       setLoadingBalances(false);
     }
