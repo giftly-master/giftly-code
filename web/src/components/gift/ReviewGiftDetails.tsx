@@ -13,7 +13,9 @@ interface ReviewGiftDetailsProps {
   unlockLabel: string;
   message: string;
   onProceed: () => void;
+  onBack?: () => void;
   isLoading?: boolean;
+  senderName?: string;
 }
 
 const rowLabel = "text-sm md:text-[14px] text-[#18181B] font-medium";
@@ -29,27 +31,37 @@ const ReviewGiftDetails: React.FC<ReviewGiftDetailsProps> = ({
   unlockLabel,
   message,
   onProceed,
+  onBack,
   isLoading = false,
+  senderName,
 }) => {
   const total = amount + processingFee;
 
-  
   const [balance, setBalance] = useState<number | null>(null);
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+  const [balanceChecked, setBalanceChecked] = useState(false);
 
   const handleCheckBalance = async () => {
     setIsCheckingBalance(true);
-    setBalance(null);
     try {
-      
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setBalance(250.00); 
-    } catch (error) {
-      console.error("Failed to fetch balance", error);
+      const res = await fetch("/api/dashboard/stats", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        const wallets: { currency: string; balance: number }[] = data.stats?.accountBalance ?? [];
+        const found = wallets.find((w) => w.currency === "NGN") ?? wallets[0];
+        setBalance(found?.balance ?? 0);
+      } else {
+        setBalance(0);
+      }
+    } catch {
+      setBalance(0);
     } finally {
       setIsCheckingBalance(false);
+      setBalanceChecked(true);
     }
   };
+
+  const hasSufficientBalance = balance !== null && balance >= total;
 
   return (
     <div className="w-full flex justify-center px-4 py-6 md:py-10">
@@ -173,18 +185,31 @@ const ReviewGiftDetails: React.FC<ReviewGiftDetailsProps> = ({
 
         <p className="text-[11px] text-[#717182] mt-6 text-center">
           By proceeding, you have accepted Giftly&apos;s{" "}
-          <a href="#" className="text-[#5A42DE] font-medium hover:underline">Terms</a> and{" "}
-          <a href="#" className="text-[#5A42DE] font-medium hover:underline">Privacy Policy</a>
+          <a href="/terms" className="text-[#5A42DE] font-medium hover:underline">Terms</a> and{" "}
+          <a href="/privacy" className="text-[#5A42DE] font-medium hover:underline">Privacy Policy</a>
         </p>
 
-        <Button
-          onClick={onProceed}
-          isLoading={isLoading}
-          disabled={isLoading}
-          className="w-full mt-4 h-12 rounded-xl bg-[#5A42DE] hover:bg-[#4E37CC] text-white text-[14px] font-semibold transition-all duration-200"
-        >
-          Proceed to Payment
-        </Button>
+        {balanceChecked && !hasSufficientBalance && (
+          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <p className="text-sm text-red-600 dark:text-red-400 text-center">
+              Insufficient balance. Please top up your wallet before proceeding.
+            </p>
+          </div>
+        )}
+
+        <div className="flex gap-3 mt-4">
+          {onBack && (
+            <Button onClick={onBack} disabled={isLoading}
+              className="flex-1 h-12 rounded-xl bg-white dark:bg-gray-800 border border-[#E5E7EB] dark:border-gray-700 text-[#18181B] dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700">
+              Back
+            </Button>
+          )}
+          <Button onClick={onProceed} isLoading={isLoading}
+            disabled={isLoading || (balanceChecked && !hasSufficientBalance)}
+            className={`h-12 rounded-xl bg-[#5A42DE] hover:bg-[#4E37CC] text-white text-sm font-semibold transition-all duration-200 disabled:opacity-50 ${onBack ? "flex-1" : "w-full"}`}>
+            Confirm & Send Gift
+          </Button>
+        </div>
       </div>
     </div>
   );

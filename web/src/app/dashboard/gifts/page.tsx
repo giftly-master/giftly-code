@@ -2,35 +2,12 @@
 
 import React, { useMemo, useState } from "react";
 import SendGiftDetailsForm, {
-  GiftContact,
   GiftDetailsFormValues,
-  GiftTemplate,
 } from "@/components/gift/SendGiftDetailsForm";
-import SenderDetailsForm, {
-  SenderDetailsValues,
-} from "@/components/gift/SenderDetailsForm";
 import ReviewGiftDetails from "@/components/gift/ReviewGiftDetails";
 import GiftSuccessModal from "@/components/gift/GiftSuccessModal";
-
-const CONTACTS: GiftContact[] = [
-  {
-    id: "u_1",
-    name: "John Eze (NGN)",
-    email: "john.eze@gmail.com",
-    phone: "8112345678",
-  },
-  {
-    id: "u_2",
-    name: "Amaka Nwosu (NGN)",
-    email: "amaka@gmail.com",
-    phone: "8029991111",
-  },
-];
-
-const TEMPLATES: GiftTemplate[] = [
-  { id: "tpl_minimal", name: "Minimal Wish" },
-  { id: "tpl_party", name: "Party Sparks" },
-];
+import { useUser } from "@/hooks/useUser";
+import { useToast } from "@/components/Toast";
 
 const INITIAL_GIFT_VALUES: GiftDetailsFormValues = {
   recipientId: "",
@@ -38,161 +15,143 @@ const INITIAL_GIFT_VALUES: GiftDetailsFormValues = {
   recipientEmail: "",
   recipientPhone: "",
   amount: "",
-  currency: "USD",
-  message: "I dey feel your hustle",
+  currency: "NGN",
+  message: "",
   templateId: "",
-  hideAmountUntilUnlock: true,
+  hideAmountUntilUnlock: false,
   anonymousUntilUnlock: false,
   unlockDate: "",
   unlockTime: "",
 };
 
-const INITIAL_SENDER_VALUES: SenderDetailsValues = {
-  fullName: "Somtochukwu Eze",
-  email: "somtochukwu@gmail.com",
-  confirmEmail: "somtochukwu@gmail.com",
-  imageName: "",
-};
-
-type FlowStep = "details" | "options" | "payment";
-
-const formatUnlockLabel = (date: string, time: string): string => {
-  if (!date && !time) return "-";
-  const dateLabel = date || "date not set";
-  const timeLabel = time || "time not set";
-  return `${dateLabel} ${timeLabel}`;
-};
+type FlowStep = "details" | "review";
 
 export default function DashboardGiftsPage() {
-  const [giftValues, setGiftValues] =
-    useState<GiftDetailsFormValues>(INITIAL_GIFT_VALUES);
-  const [senderValues, setSenderValues] = useState<SenderDetailsValues>(
-    INITIAL_SENDER_VALUES,
-  );
+  const { user } = useUser();
+  const { error: toastError } = useToast();
+
+  const [giftValues, setGiftValues] = useState<GiftDetailsFormValues>(INITIAL_GIFT_VALUES);
   const [step, setStep] = useState<FlowStep>("details");
   const [isProceeding, setIsProceeding] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const amount = Number(giftValues.amount || 0);
-  const processingFee = useMemo(() => {
-    if (amount <= 0) return 0;
-    return Math.round(amount * 0.02);
-  }, [amount]);
+  const processingFee = useMemo(() => (amount > 0 ? Math.round(amount * 0.02) : 0), [amount]);
+
+  const unlockLabel = giftValues.unlockDate && giftValues.unlockTime
+    ? `${giftValues.unlockDate} at ${giftValues.unlockTime}`
+    : giftValues.unlockDate || "Immediate";
 
   const handleProceed = async () => {
+    if (!giftValues.recipientId) {
+      toastError("Recipient not resolved. Please enter a valid phone number.");
+      return;
+    }
     setIsProceeding(true);
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    setIsProceeding(false);
-    setIsSuccessModalOpen(true);
-  };
+    try {
+      const body: Record<string, unknown> = {
+        recipient: giftValues.recipientId,
+        amount,
+        currency: giftValues.currency,
+        message: giftValues.message || undefined,
+        template: giftValues.templateId || undefined,
+        hideAmount: giftValues.hideAmountUntilUnlock,
+        isAnonymous: giftValues.anonymousUntilUnlock,
+      };
 
-  const handleNext = () => {
-    if (step === "details") setStep("options");
-    else if (step === "options") setStep("payment");
-  };
+      if (giftValues.unlockDate && giftValues.unlockTime) {
+        body.unlockDatetime = new Date(`${giftValues.unlockDate}T${giftValues.unlockTime}`).toISOString();
+      }
 
-  const handleBack = () => {
-    if (step === "options") setStep("details");
-    else if (step === "payment") setStep("options");
-  };
+      const res = await fetch("/api/gifts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
 
-  const getCurrentStepIndex = () => {
-    switch (step) {
-      case "details": return 0;
-      case "options": return 1;
-      case "payment": return 2;
-      default: return 0;
+      const data = await res.json();
+      if (!res.ok) {
+        toastError(data.detail ?? "Failed to send gift. Please try again.");
+        return;
+      }
+
+      setIsSuccessModalOpen(true);
+      setGiftValues(INITIAL_GIFT_VALUES);
+      setStep("details");
+    } catch {
+      toastError("Network error. Please check your connection.");
+    } finally {
+      setIsProceeding(false);
     }
   };
 
+  const stepIndex = step === "details" ? 0 : 1;
+  const steps = ["Gift Details", "Review & Pay"];
+
   return (
     <div className="px-3 pb-3 md:px-6 md:pb-6">
-      <div className="min-h-[calc(100vh-122px)] rounded-3xl bg-[#F5F5FA] border border-[#EEEEF3]">
-        {}
+      <div className="min-h-[calc(100vh-122px)] rounded-3xl bg-[#F5F5FA] dark:bg-[#1a1a24] border border-[#EEEEF3] dark:border-gray-700">
+
+        {/* Step indicator */}
         <div className="px-6 pt-6">
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center space-x-4">
-              {[0, 1, 2].map((index) => (
-                <React.Fragment key={index}>
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                      index <= getCurrentStepIndex()
-                        ? "bg-[#5A42DE] text-white"
-                        : "bg-gray-200 text-gray-500"
-                    }`}
-                  >
-                    {index + 1}
+              {steps.map((label, index) => (
+                <React.Fragment key={label}>
+                  <div className="flex flex-col items-center gap-1">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                      index <= stepIndex ? "bg-[#5A42DE] text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-500"
+                    }`}>
+                      {index + 1}
+                    </div>
+                    <span className={`text-xs font-medium hidden sm:block ${index <= stepIndex ? "text-[#5A42DE]" : "text-gray-400"}`}>
+                      {label}
+                    </span>
                   </div>
-                  {index < 2 && (
-                    <div
-                      className={`w-12 h-1 transition-colors ${
-                        index < getCurrentStepIndex()
-                          ? "bg-[#5A42DE]"
-                          : "bg-gray-200"
-                      }`}
-                    />
+                  {index < steps.length - 1 && (
+                    <div className={`w-16 h-1 mb-4 rounded-full transition-colors ${index < stepIndex ? "bg-[#5A42DE]" : "bg-gray-200 dark:bg-gray-700"}`} />
                   )}
                 </React.Fragment>
               ))}
             </div>
           </div>
-          <div className="flex justify-center mb-6">
-            <div className="text-center">
-              <h2 className="text-lg font-semibold text-[#18181B]">
-                {step === "details" && "Gift Details"}
-                {step === "options" && "Gift Options"}
-                {step === "payment" && "Payment"}
-              </h2>
-              <p className="text-sm text-[#717182] mt-1">
-                {step === "details" && "Enter recipient and amount details"}
-                {step === "options" && "Configure delivery and wrapper options"}
-                {step === "payment" && "Review and complete your gift"}
-              </p>
-            </div>
-          </div>
         </div>
 
-        {step === "details" ? (
+        {/* Steps */}
+        {step === "details" && (
           <SendGiftDetailsForm
-            contacts={CONTACTS}
-            templates={TEMPLATES}
             value={giftValues}
             onChange={setGiftValues}
-            onContinue={handleNext}
+            onContinue={() => setStep("review")}
           />
-        ) : null}
+        )}
 
-        {step === "options" ? (
-          <SendGiftDetailsForm
-            contacts={CONTACTS}
-            templates={TEMPLATES}
-            value={giftValues}
-            onChange={setGiftValues}
-            onContinue={handleNext}
-            showOptionsOnly={true}
-            onBack={handleBack}
-          />
-        ) : null}
-
-        {step === "payment" ? (
-          <SenderDetailsForm
-            value={senderValues}
-            onChange={setSenderValues}
-            amountLabel={`$${amount || 0}`}
-            onContinue={handleProceed}
-            onBack={handleBack}
+        {step === "review" && (
+          <ReviewGiftDetails
+            recipientName={giftValues.recipientName || "Unknown"}
+            recipientPhone={giftValues.recipientPhone}
+            amount={amount}
+            processingFee={processingFee}
+            hideAmountUntilUnlock={giftValues.hideAmountUntilUnlock}
+            anonymousUntilUnlock={giftValues.anonymousUntilUnlock}
+            unlockLabel={unlockLabel}
+            message={giftValues.message}
+            onProceed={handleProceed}
+            onBack={() => setStep("details")}
             isLoading={isProceeding}
+            senderName={user?.name ?? user?.username ?? undefined}
           />
-        ) : null}
+        )}
       </div>
 
-      {isSuccessModalOpen ? (
+      {isSuccessModalOpen && (
         <GiftSuccessModal
           isOpen={true}
-          recipientName={giftValues.recipientName || "John Eze"}
+          recipientName={giftValues.recipientName || "the recipient"}
           onClose={() => setIsSuccessModalOpen(false)}
         />
-      ) : null}
+      )}
     </div>
   );
 }

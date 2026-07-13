@@ -21,6 +21,11 @@ import { POST as sendVerificationPost } from "./api/auth/send-verification/route
 import { POST as verifyEmailPost } from "./api/auth/verify-email/route";
 import { POST as verifyOtpPost } from "./api/auth/verify-otp/route";
 import { PATCH as patchUserMe } from "./api/users/me/route";
+// Gifts
+import { POST as giftsPost } from "./api/gifts/route";
+import { GET as giftsLockedGet } from "./api/gifts/locked/route";
+// Users
+import { GET as usersResolveGet } from "./api/users/resolve/route";
 
 export const apiRouter = Router();
 
@@ -47,4 +52,9 @@ apiRouter.get("/api/dashboard/stats", makeExpressHandler(dashboardStatsGet));
 
 // 3. User routes
 apiRouter.patch("/api/users/me", makeExpressHandler(patchUserMe));
+apiRouter.get("/api/users/resolve", makeExpressHandler(usersResolveGet));
+
+// 4. Gift routes
+apiRouter.post("/api/gifts", makeExpressHandler(giftsPost));
+apiRouter.get("/api/gifts/locked", makeExpressHandler(giftsLockedGet));
 
