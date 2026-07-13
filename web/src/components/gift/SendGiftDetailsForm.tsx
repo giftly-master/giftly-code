@@ -6,7 +6,7 @@ import { Eye, Search, X } from "lucide-react";
 import { PhoneInput } from "@/components/PhoneInput";
 import Button from "@/components/Button";
 import GiftPreviewModal from "@/components/gift/GiftPreviewModal";
-import UserProfile from "@/assets/images/user.png";
+import UserProfile from "@/assets/images/avatar-female.svg";
 
 const PRESET_AMOUNTS = [500, 1000, 2000, 5000, 10000, 20000];
 const MAX_MESSAGE_LENGTH = 200;

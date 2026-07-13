@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useUser } from "@/hooks/useUser";
-import UserProfile from "@/assets/images/user.png";
+import UserProfile from "@/assets/images/avatar-female.svg";
 import Link from "next/link";
 
 export const UserAvatarLoader = () => {
@@ -20,7 +20,7 @@ export const UserAvatarLoader = () => {
   return (
     <Link href="/settings" className="size-8 bg-[#F7F7F8] rounded-full hover:opacity-80 transition-opacity">
       <Image
-        src={avatarUrl || fallbackAvatar}
+        src={avatarUrl || fallbackAvatar.src}
         alt="User Profile"
         width={32}
         height={32}

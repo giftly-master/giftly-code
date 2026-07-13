@@ -1,6 +1,6 @@
 ﻿import { NotificationIcon } from "@/assets/svg";
 import { ArrowLeft } from "lucide-react";
-import UserProfile from "@/assets/images/user.png";
+import UserProfile from "@/assets/images/avatar-female.svg";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { UserAvatarLoader } from "@/components/dashboard/global/UserAvatarLoader";

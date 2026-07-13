@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="50" fill="#EDE9FF"/>
+  <!-- Body / shoulders -->
+  <ellipse cx="50" cy="85" rx="28" ry="20" fill="#C4B5FD"/>
+  <!-- Neck -->
+  <rect x="44" y="60" width="12" height="12" rx="4" fill="#FBBF9A"/>
+  <!-- Head -->
+  <circle cx="50" cy="50" r="18" fill="#FBBF9A"/>
+  <!-- Hair - top and sides -->
+  <ellipse cx="50" cy="36" rx="18" ry="10" fill="#5A42DE"/>
+  <!-- Hair flowing down left -->
+  <ellipse cx="34" cy="50" rx="6" ry="14" fill="#5A42DE"/>
+  <!-- Hair flowing down right -->
+  <ellipse cx="66" cy="50" rx="6" ry="14" fill="#5A42DE"/>
+  <!-- Eyes -->
+  <circle cx="44" cy="49" r="2.2" fill="#3B2F8A"/>
+  <circle cx="56" cy="49" r="2.2" fill="#3B2F8A"/>
+  <!-- Eye shine -->
+  <circle cx="45" cy="48" r="0.8" fill="white"/>
+  <circle cx="57" cy="48" r="0.8" fill="white"/>
+  <!-- Smile -->
+  <path d="M44 56 Q50 61 56 56" stroke="#E07A5F" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <!-- Earrings -->
+  <circle cx="32.5" cy="52" r="2" fill="#7C3AED"/>
+  <circle cx="67.5" cy="52" r="2" fill="#7C3AED"/>
+</svg>
