@@ -17,27 +17,9 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-            <Link
-              href="#features"
-              className="hover:text-[#5A42DE] transition-colors"
-              aria-current="false"
-            >
-              Features
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="hover:text-[#5A42DE] transition-colors"
-              aria-current="false"
-            >
-              How it works
-            </Link>
-            <Link
-              href="#pricing"
-              className="hover:text-[#5A42DE] transition-colors"
-              aria-current="false"
-            >
-              Pricing
-            </Link>
+            <Link href="#features" className="hover:text-[#5A42DE] transition-colors">Features</Link>
+            <Link href="#how-it-works" className="hover:text-[#5A42DE] transition-colors">How it works</Link>
+            <Link href="#faq" className="hover:text-[#5A42DE] transition-colors">FAQ</Link>
           </div>
 
           <div className="flex items-center gap-4">
@@ -119,8 +101,34 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {}
-      <section id="how-it-works" className="py-24 bg-white">
+      {/* Features section */}
+      <section id="features" className="py-24 bg-[#F8FAFF]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4 font-br-firma">Everything you need to gift better</h2>
+            <p className="text-[#717182] max-w-xl mx-auto">Built for senders who care about the moment, not just the money.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              { icon: "🔒", title: "Time-Locked Gifts", desc: "Funds stay hidden and locked until your chosen date — enforced on the Stellar blockchain." },
+              { icon: "💵", title: "Stable Value", desc: "USDC on Stellar keeps the gift value exactly what you sent. No volatility surprises." },
+              { icon: "📈", title: "Earn Yield", desc: "Savings earn passive yield via Stellar AMM pools while waiting for the unlock date." },
+              { icon: "🏦", title: "Bank Payouts", desc: "Nigerian recipients get instant NGN payouts direct to their bank account via Paystack." },
+              { icon: "🎉", title: "Surprise Experience", desc: "Recipients see a locked gift and a countdown — the reveal only happens at the exact moment." },
+              { icon: "🌍", title: "Global & Low Fee", desc: "Stellar's 3–5 second finality and near-zero fees make cross-border gifting practical at any size." },
+            ].map((f) => (
+              <motion.div key={f.title} whileHover={{ y: -4 }}
+                className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm space-y-3">
+                <span className="text-3xl">{f.icon}</span>
+                <h3 className="text-lg font-bold text-gray-900">{f.title}</h3>
+                <p className="text-sm text-[#717182] leading-relaxed">{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4 font-br-firma">How Giftly Works</h2>

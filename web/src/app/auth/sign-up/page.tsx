@@ -106,8 +106,38 @@ const SignUp: React.FC = () => {
   };
 
   const handleChange = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    if (errors[field as keyof FormErrors]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+    const value = e.target.value;
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Inline validation as user types
+    const newErrors = { ...errors };
+    switch (field) {
+      case "fullName":
+        if (!value.trim()) newErrors.fullName = "Full name is required";
+        else if (value.trim().length < 2) newErrors.fullName = "At least 2 characters";
+        else delete newErrors.fullName;
+        break;
+      case "email":
+        if (!value.trim()) newErrors.email = "Email is required";
+        else if (!validateEmail(value)) newErrors.email = "Enter a valid email";
+        else delete newErrors.email;
+        break;
+      case "password":
+        const pwErr = validatePassword(value);
+        if (pwErr) newErrors.password = pwErr;
+        else delete newErrors.password;
+        if (formData.confirmPassword && value !== formData.confirmPassword)
+          newErrors.confirmPassword = "Passwords do not match";
+        else if (formData.confirmPassword) delete newErrors.confirmPassword;
+        break;
+      case "confirmPassword":
+        if (value !== formData.password) newErrors.confirmPassword = "Passwords do not match";
+        else delete newErrors.confirmPassword;
+        break;
+      default:
+        delete newErrors[field as keyof FormErrors];
+    }
+    setErrors(newErrors);
   };
 
   return (

@@ -7,6 +7,7 @@ import Link from "next/link";
 import PackageIcon from "@/assets/images/package.png";
 import { KycCard } from "./KycCard";
 import { GiftInfoCard } from "./GiftInfoCard";
+import type { DashboardStats } from "@/hooks/useDashboardStats";
 
 
 interface TimeLeft {
@@ -30,7 +31,7 @@ const calculateTimeLeft = (targetDate: string): TimeLeft => {
   };
 };
 
-export const GiftCard = () => {
+export const GiftCard = ({ stats, statsLoading }: { stats?: DashboardStats | null; statsLoading?: boolean }) => {
   const [activeTab, setActiveTab] = useState(1);
   const tabs = [{ id: 1, name: "gift received" }, { id: 2, name: "gift send" }];
   
@@ -42,9 +43,9 @@ export const GiftCard = () => {
   return (
     <div className="space-y-5">
       <div className="lg:flex gap-5 hidden">
-        <StatCard amount="24" title="Gift received" bgColor="bg-[#F0FDF4]" textColor="text-[#22C55E]" />
-        <StatCard amount="04" title="Gift sent" bgColor="bg-[#FEF2F2]" textColor="text-[#EF4444]" />
-        <StatCard amount="07" title="Unopened Gift" bgColor="bg-[#ECEFFE]" textColor="text-[#5A42DE]" />
+        <StatCard amount={statsLoading ? "—" : String(stats?.giftsReceived ?? 0)} title="Gift received" bgColor="bg-[#F0FDF4]" textColor="text-[#22C55E]" />
+        <StatCard amount={statsLoading ? "—" : String(stats?.giftsSent ?? 0)} title="Gift sent" bgColor="bg-[#FEF2F2]" textColor="text-[#EF4444]" />
+        <StatCard amount={statsLoading ? "—" : String(stats?.unopenedGifts ?? 0)} title="Unopened Gift" bgColor="bg-[#ECEFFE]" textColor="text-[#5A42DE]" />
       </div>
 
       {gifts.length > 0 ? (
