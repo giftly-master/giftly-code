@@ -12,7 +12,7 @@ export const DashboardLayout = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-[#F7F7FC] dark:bg-[#0f0f13] transition-colors">
       <SideBar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 relative min-w-0">
         <NavBar onMenuToggle={() => setSidebarOpen(true)} />

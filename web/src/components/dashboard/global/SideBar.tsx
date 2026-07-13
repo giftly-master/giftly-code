@@ -127,8 +127,8 @@ export const SideBar = ({ isOpen, onClose }: SideBarProps) => {
           compact ? "gap-3 rounded-xl" : "justify-between rounded-lg"
         } px-4 py-3 transition-colors ${
           active
-            ? "bg-[#ECEFFE] text-[#5A42DE]"
-            : "text-gray-600 hover:bg-gray-50"
+            ? "bg-[#ECEFFE] dark:bg-[#2a2a4a] text-[#5A42DE]"
+            : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
         }`}
       >
         <div className="flex items-center gap-3">
@@ -139,8 +139,8 @@ export const SideBar = ({ isOpen, onClose }: SideBarProps) => {
           <span
             className={`text-xs px-2 py-0.5 rounded-full ${
               active
-                ? "bg-white/20 text-white"
-                : "bg-gray-100 text-gray-600"
+                ? "bg-[#5A42DE]/20 text-[#5A42DE]"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
             }`}
           >
             {item.badge}
@@ -152,18 +152,18 @@ export const SideBar = ({ isOpen, onClose }: SideBarProps) => {
 
   const sidebarContent = (applyAriaCurrent: boolean) => (
     <>
-      {}
-      <div className="mb-10 flex items-center justify-between sticky top-0 left-0 bg-white z-10 max-h-screen">
+      {/* Logo header */}
+      <div className="mb-10 flex items-center justify-between sticky top-0 left-0 bg-white dark:bg-[#1a1a24] z-10 pb-2">
         <Image src="/giftly-logo.svg" alt="Giftly logo" width={160} height={44} />
         <button
           onClick={onClose}
-          className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
         >
-          <X size={20} className="text-gray-500" />
+          <X size={20} className="text-gray-500 dark:text-gray-400" />
         </button>
       </div>
 
-      {}
+      {/* Main menu */}
       <div className="mb-10">
         <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
           Main Menu
@@ -175,7 +175,7 @@ export const SideBar = ({ isOpen, onClose }: SideBarProps) => {
         </nav>
       </div>
 
-      {}
+      {/* General menu */}
       <div className="flex-1">
         <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
           General
@@ -187,16 +187,17 @@ export const SideBar = ({ isOpen, onClose }: SideBarProps) => {
               renderNavLink(item, { compact: true, applyAriaCurrent }),
             )}
 
-          {}
-          <div className="flex items-center justify-between px-4 py-3 text-gray-600">
+          {/* Dark mode toggle */}
+          <div className="flex items-center justify-between px-4 py-3 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <div className="flex items-center gap-3">
               <MoonIcon />
               <span className="text-sm font-medium">Dark Mode</span>
             </div>
             <button
               onClick={() => toggleDarkMode()}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                darkMode ? "bg-[#5A42DE]" : "bg-gray-200"
+              aria-label="Toggle dark mode"
+              className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#5A42DE]/40 ${
+                darkMode ? "bg-[#5A42DE]" : "bg-gray-200 dark:bg-gray-600"
               }`}
             >
               <span
@@ -215,10 +216,10 @@ export const SideBar = ({ isOpen, onClose }: SideBarProps) => {
         </nav>
       </div>
 
-      {}
+      {/* Logout */}
       <button
         onClick={handleLogout}
-        className="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-700 transition-colors w-full text-left"
+        className="flex items-center gap-3 px-4 py-3 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors w-full text-left"
       >
         <LogOutDoor />
         <span className="text-sm font-medium">Logout</span>
@@ -228,17 +229,17 @@ export const SideBar = ({ isOpen, onClose }: SideBarProps) => {
 
   return (
     <>
-      {}
+      {/* Desktop sidebar */}
       <aside
         aria-hidden={!isDesktopViewport}
-        className="h-screen hidden w-61 px-3 py-8 md:px-5 fixed top-0 left-0 lg:flex flex-col bg-white border-r border-gray-100 overflow-y-auto"
+        className="h-screen hidden w-61 px-3 py-8 md:px-5 fixed top-0 left-0 lg:flex flex-col bg-white dark:bg-[#1a1a24] border-r border-gray-100 dark:border-gray-800 overflow-y-auto transition-colors"
       >
         {sidebarContent(isDesktopViewport)}
       </aside>
-      {}
+      {/* Desktop spacer */}
       <div className="hidden lg:block w-61 shrink-0" />
 
-      {}
+      {/* Mobile overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -246,10 +247,10 @@ export const SideBar = ({ isOpen, onClose }: SideBarProps) => {
         />
       )}
 
-      {}
+      {/* Mobile sidebar */}
       <aside
         aria-hidden={isDesktopViewport || !isOpen}
-        className={`fixed top-0 left-0 h-screen w-72 px-5 py-8 flex flex-col bg-white z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
+        className={`fixed top-0 left-0 h-screen w-72 px-5 py-8 flex flex-col bg-white dark:bg-[#1a1a24] border-r border-gray-100 dark:border-gray-800 z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

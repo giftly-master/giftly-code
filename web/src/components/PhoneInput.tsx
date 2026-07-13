@@ -30,45 +30,38 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 
     return (
       <div className="w-full">
-       
-        <div className="relative flex gap-2">
-          {}
-          <div className="relative">
-             {label && (
-          <label 
-            htmlFor={props.id} 
-            className="block absolute text-nowrap -top-px z-20 left-1/2 -translate-1/2 px-2 bg-white  text-xs  text-[#9CA3AF] py-0.5"
+        {label && (
+          <label
+            htmlFor={props.id}
+            className="block text-xs text-[#9CA3AF] mb-2 px-1"
           >
             {label}
           </label>
         )}
+        <div className="relative flex gap-2 w-full min-w-0">
+          {/* Country selector */}
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
-              className="h-full px-3 rounded-lg bg-white border border-[#E5E7EB] hover:border-[#e0e0e0] transition-colors flex items-center gap-2 max-w-29.75 min-w-29.75"
+              className="h-full px-3 py-3 rounded-xl bg-white dark:bg-gray-800 border border-[#E5E7EB] dark:border-gray-700 hover:border-[#5A42DE] transition-colors flex items-center gap-1.5 whitespace-nowrap"
               aria-label="Select country code"
             >
-              <span className="text-lg">{selectedCountry.flag}</span>
-              <span className="text-sm text-[#030213]">{selectedCountry.code}</span>
+              <span className="text-base">{selectedCountry.flag}</span>
+              <span className="text-sm text-[#18181B] dark:text-white">{selectedCountry.code}</span>
             </button>
-            
+
             {isOpen && (
               <>
-                <div 
-                  className="fixed inset-0 z-10" 
-                  onClick={() => setIsOpen(false)}
-                />
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-[#e0e0e0] py-1 z-20 max-h-60 overflow-auto">
+                <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
+                <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-[#E5E7EB] dark:border-gray-700 py-1 z-20 max-h-60 overflow-auto">
                   {countries.map((country) => (
-                    <button
-                      key={country.code}
-                      type="button"
+                    <button key={country.code} type="button"
                       onClick={() => handleCountrySelect(country)}
-                      className="w-full px-3 py-2 text-left hover:bg-[#f3f3f5] transition-colors flex items-center gap-2"
-                    >
-                      <span className="text-lg">{country.flag}</span>
-                      <span className="text-sm text-[#030213] flex-1">{country.name}</span>
-                      <span className="text-sm text-[#717182]">{country.code}</span>
+                      className="w-full px-3 py-2 text-left hover:bg-[#F7F7FC] dark:hover:bg-gray-700 transition-colors flex items-center gap-2">
+                      <span className="text-base">{country.flag}</span>
+                      <span className="text-sm text-[#18181B] dark:text-white flex-1">{country.name}</span>
+                      <span className="text-xs text-[#717182]">{country.code}</span>
                     </button>
                   ))}
                 </div>
@@ -76,21 +69,22 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
             )}
           </div>
 
-          {}
+          {/* Phone input */}
           <input
             ref={ref}
             type="tel"
             className={`
-              flex-1 px-4 py-3 rounded-lg
-              bg-white border border-[#E5E7EB]
-              text-[#030213] placeholder:text-[#717182]
+              min-w-0 flex-1 px-4 py-3 rounded-xl
+              bg-white dark:bg-gray-800
+              border border-[#E5E7EB] dark:border-gray-700
+              text-[#18181B] dark:text-white placeholder:text-[#9CA3AF]
               transition-all duration-200
-              focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 focus:border-[#6c5ce7]
+              focus:outline-none focus:ring-2 focus:ring-[#5A42DE]/20 focus:border-[#5A42DE]
               disabled:opacity-50 disabled:cursor-not-allowed
-              ${error ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : ''}
+              ${error ? "border-red-500 focus:ring-red-500/20 focus:border-red-500" : ""}
               ${className}
             `}
-            aria-invalid={error ? 'true' : 'false'}
+            aria-invalid={error ? "true" : "false"}
             aria-describedby={error ? `${props.id}-error` : helperText ? `${props.id}-helper` : undefined}
             {...props}
           />

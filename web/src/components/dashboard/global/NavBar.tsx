@@ -25,8 +25,8 @@ export const NavBar = ({ onMenuToggle }: NavBarProps) => {
   const canGoBack = pathname !== "/dashboard";
 
   return (
-    <header className="bg-white w-full sticky top-0 left-0 z-10 ">
-      <nav className="py-4.5 px-5  lg:pl-0 pr-6 flex items-center justify-between ">
+    <header className="bg-white dark:bg-[#1a1a24] border-b border-gray-100 dark:border-gray-800 w-full sticky top-0 left-0 z-10 transition-colors">
+      <nav className="py-4.5 px-5 lg:pl-0 pr-6 flex items-center justify-between">
         <div className="md:hidden">
           <Image
             src="/giftly-logo.svg"
@@ -37,38 +37,33 @@ export const NavBar = ({ onMenuToggle }: NavBarProps) => {
           />
         </div>
         <button
-          onClick={() => {
-            if (canGoBack) {
-              router.back();
-            } else {
-              router.push("/dashboard");
-            }
-          }}
-          className="md:flex items-center gap-3  text-[#71717A] cursor-pointer hover:bg-gray-50 rounded-xl transition-colors hidden"
+          onClick={() => { if (canGoBack) { router.back(); } else { router.push("/dashboard"); } }}
+          className="md:flex items-center gap-3 text-[#71717A] dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors hidden"
         >
-          <div className="bg-[#F7F7F8] size-8 rounded-full flex items-center justify-center ">
+          <div className="bg-[#F7F7F8] dark:bg-gray-800 size-8 rounded-full flex items-center justify-center">
             <ArrowLeft size={16} />
           </div>
           <span>{pageTitle}</span>
         </button>
 
-        <p className="text-[#71717A] md:hidden">{pageTitle}</p>
+        <p className="text-[#71717A] dark:text-gray-400 md:hidden">{pageTitle}</p>
 
-        <div className="lg:flex items-center justify-center  gap-4.5 hidden">
-          <div className="size-8 bg-[#F7F7F8] rounded-full flex items-center justify-center">
+        <div className="lg:flex items-center justify-center gap-4.5 hidden">
+          <div className="size-8 bg-[#F7F7F8] dark:bg-gray-800 rounded-full flex items-center justify-center">
             <NotificationIcon />
           </div>
           <UserAvatarLoader />
         </div>
 
-        {}
+        {/* Hamburger */}
         <button
           onClick={onMenuToggle}
-          className="flex items-center gap-1 p-2 text-[#71717A] cursor-pointer hover:bg-gray-50 rounded-xl transition-colors lg:hidden flex-col"
+          className="flex items-center gap-1 p-2 text-[#71717A] dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors lg:hidden flex-col"
+          aria-label="Open menu"
         >
-          <div className="w-5 h-0.5 bg-gray-400 rounded-full"></div>
-          <div className="w-5 h-0.5 bg-gray-400 rounded-full"></div>
-          <div className="w-5 h-0.5 bg-gray-400 rounded-full"></div>
+          <div className="w-5 h-0.5 bg-gray-400 dark:bg-gray-500 rounded-full"></div>
+          <div className="w-5 h-0.5 bg-gray-400 dark:bg-gray-500 rounded-full"></div>
+          <div className="w-5 h-0.5 bg-gray-400 dark:bg-gray-500 rounded-full"></div>
         </button>
       </nav>
     </header>
