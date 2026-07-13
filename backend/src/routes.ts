@@ -58,3 +58,11 @@ apiRouter.get("/api/users/resolve", makeExpressHandler(usersResolveGet));
 apiRouter.post("/api/gifts", makeExpressHandler(giftsPost));
 apiRouter.get("/api/gifts/locked", makeExpressHandler(giftsLockedGet));
 
+// 5. Faucet (testnet only)
+import { POST as faucetPost } from "./api/faucet/route";
+apiRouter.post("/api/faucet/claim", makeExpressHandler(faucetPost));
+
+// 6. Transactions
+import { GET as transactionsGet } from "./api/transactions/route";
+apiRouter.get("/api/transactions", makeExpressHandler(transactionsGet));
+
