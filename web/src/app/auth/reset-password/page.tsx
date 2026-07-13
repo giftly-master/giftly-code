@@ -1,63 +1,61 @@
-﻿'use client'
-import React, { useState, FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { AuthLayout } from '@/layouts/AuthLayout';
-import { WorldMapShowcase } from '@/components/auth/WordMapShowcase';
-import { PasswordInput } from '@/components/PasswordInput';
-import Button from '@/components/Button';
-import PasswordStrengthIndicator from '@/components/auth/PasswordStrengthIndicator';
+﻿"use client";
+import React, { useState, FormEvent, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { AuthLayout } from "@/layouts/AuthLayout";
+import { WorldMapShowcase } from "@/components/auth/WordMapShowcase";
+import { PasswordInput } from "@/components/PasswordInput";
+import Button from "@/components/Button";
+import PasswordStrengthIndicator from "@/components/auth/PasswordStrengthIndicator";
+import { CheckCircle, ChevronLeft } from "lucide-react";
+import Link from "next/link";
 
-const ResetPasswordPage: React.FC = () => {
+function ResetPasswordForm() {
   const router = useRouter();
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") ?? "";
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [strength, setStrength] = useState<0 | 1 | 2 | 3 | 4>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const calculateStrength = (pwd: string): 0 | 1 | 2 | 3 | 4 => {
+  const calcStrength = (pwd: string): 0 | 1 | 2 | 3 | 4 => {
     if (!pwd) return 0;
-    let score = 0;
-    if (pwd.length >= 8) score++;
-    if (/[A-Z]/.test(pwd)) score++;
-    if (/[a-z]/.test(pwd)) score++;
-    if (/[0-9]/.test(pwd) || /[^A-Za-z0-9]/.test(pwd)) score++;
-    return score as 0 | 1 | 2 | 3 | 4;
+    let s = 0;
+    if (pwd.length >= 8) s++;
+    if (/[A-Z]/.test(pwd)) s++;
+    if (/[a-z]/.test(pwd)) s++;
+    if (/[0-9]/.test(pwd) || /[^A-Za-z0-9]/.test(pwd)) s++;
+    return s as 0 | 1 | 2 | 3 | 4;
   };
 
   useEffect(() => {
-    setStrength(calculateStrength(password));
-    if (confirmPassword && password !== confirmPassword) {
-      setError('Passwords do not match');
-    } else {
-      setError(null);
-    }
+    setStrength(calcStrength(password));
+    if (confirmPassword && password !== confirmPassword) setError("Passwords do not match");
+    else setError(null);
   }, [password, confirmPassword]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      return;
-    }
+    if (password !== confirmPassword) { setError("Passwords do not match"); return; }
+    if (password.length < 8) { setError("Password must be at least 8 characters"); return; }
+    if (!token) { setError("Reset token is missing. Please use the link from your email."); return; }
 
     setIsLoading(true);
-
-    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Password updated successfully');
-      setShowSuccess(true);
-      setTimeout(() => {
-        router.push('/auth/login?reset=success');
-      }, 3000);
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword: password }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.detail ?? "Failed to reset password. The link may have expired."); return; }
+      setSuccess(true);
+      setTimeout(() => router.push("/auth/login?reset=success"), 3000);
+    } catch {
+      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -67,79 +65,67 @@ const ResetPasswordPage: React.FC = () => {
 
   return (
     <AuthLayout showcaseContent={<WorldMapShowcase />}>
-      <div className="space-y-8 md:space-y-10">
-        <div className="space-y-2">
-          <h1 className="text-[28px] md:text-[32px] leading-tight font-bold text-[#101828]">
-            Create new password
-          </h1>
-          <p className="text-sm md:text-base text-[#667085] leading-relaxed">
-            Create a new secure password for future access to your Giftly account.
-          </p>
-        </div>
+      <div className="space-y-8 w-full">
+        <Link href="/auth/login"
+          className="inline-flex items-center gap-1 text-sm text-[#717182] hover:text-[#18181B] transition-colors">
+          <ChevronLeft className="w-4 h-4" /> Back to Login
+        </Link>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-1.5">
-            <PasswordInput
-              id="password"
-              label="Enter new password"
-              placeholder="••••••••••••••"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setError(null);
-              }}
-              className="!border-[#D0D5DD]"
-              required
-              autoComplete="new-password"
-            />
-            <p className="text-[12px] text-[#667085] leading-normal px-1">
-              Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.
-            </p>
-            <PasswordStrengthIndicator strength={strength} />
+        {success ? (
+          <div className="space-y-6 text-center pt-4">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center">
+                <CheckCircle className="w-8 h-8 text-green-500" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-[#18181B] mb-2">Password reset!</h1>
+              <p className="text-[#717182] text-sm">Redirecting you to login…</p>
+            </div>
           </div>
+        ) : (
+          <>
+            <div>
+              <h1 className="text-2xl font-bold text-[#18181B] mb-2">Create new password</h1>
+              <p className="text-sm text-[#717182]">
+                Your new password must be different from your previous one.
+              </p>
+            </div>
 
-          <PasswordInput
-            id="confirmPassword"
-            label="Confirm Password"
-            placeholder="••••••••••••••"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-              setError(null);
-            }}
-            error={error || undefined}
-            className="!border-[#D0D5DD]"
-            required
-            autoComplete="new-password"
-          />
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
 
-          <div className="pt-2">
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full bg-[#5D38D0]! hover:bg-[#4E2EB3]! rounded-lg! text-base! font-semibold! cursor-pointer py-3 transition-colors h-[48px]"
-              isLoading={isLoading}
-              disabled={!isFormValid || isLoading}
-            >
-              Create new password
-            </Button>
-          </div>
-        </form>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-1.5">
+                <PasswordInput id="password" label="New Password" placeholder="••••••••••••••"
+                  value={password} onChange={(e) => { setPassword(e.target.value); setError(null); }}
+                  required autoComplete="new-password" />
+                <PasswordStrengthIndicator strength={strength} />
+                <p className="text-xs text-[#717182] px-1">
+                  At least 8 characters with uppercase, lowercase, number and special character.
+                </p>
+              </div>
+
+              <PasswordInput id="confirmPassword" label="Confirm Password" placeholder="••••••••••••••"
+                value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setError(null); }}
+                error={error || undefined} required autoComplete="new-password" />
+
+              <Button type="submit" variant="primary"
+                className="w-full bg-[#5A42DE]! rounded-xl! text-base! font-semibold!"
+                isLoading={isLoading} disabled={!isFormValid || isLoading}>
+                Reset Password
+              </Button>
+            </form>
+          </>
+        )}
       </div>
-
-      {}
-      {showSuccess && (
-        <div className="fixed bottom-8 left-8 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center gap-3 bg-[#ECFDF3] border border-[#D1FADF] rounded-lg px-4 py-3 shadow-sm">
-            <div className="w-2 h-2 rounded-full bg-[#12B76A]" />
-            <p className="text-sm font-medium text-[#027A48]">
-              Password reset was successful.
-            </p>
-          </div>
-        </div>
-      )}
     </AuthLayout>
   );
-};
+}
 
-export default ResetPasswordPage;
+export default function ResetPasswordPage() {
+  return <Suspense><ResetPasswordForm /></Suspense>;
+}

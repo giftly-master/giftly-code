@@ -17,9 +17,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Giftly | The Mystery Gifting Platform",
-  description: "Send time-locked cash gifts on the Stellar blockchain. Anticiapte the surprise, celebrate the moment.",
+  title: {
+    default: "Giftly | The Mystery Gifting Platform",
+    template: "%s | Giftly",
+  },
+  description: "Send time-locked cash gifts on the Stellar blockchain. Anticipate the surprise, celebrate the moment.",
   keywords: ["gifting", "stellar", "blockchain", "money transfer", "nigeria", "surprise"],
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
+  openGraph: {
+    title: "Giftly — The Mystery Gifting Platform",
+    description: "Send time-locked cash gifts that stay hidden until the perfect moment.",
+    type: "website",
+    siteName: "Giftly",
+  },
 };
 
 export default function RootLayout({

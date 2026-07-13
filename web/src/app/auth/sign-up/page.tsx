@@ -24,10 +24,11 @@ interface FormErrors {
   email?: string;
   password?: string;
   confirmPassword?: string;
+  general?: string;
 }
 
 const SignUp: React.FC = () => {
-  const route = useRouter();
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     phoneNumber: "",
@@ -39,195 +40,128 @@ const SignUp: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validatePassword = (password: string): string | undefined => {
-    if (password.length < 8) {
-      return "Password must be at least 8 characters long";
-    }
-    if (!/[A-Z]/.test(password)) {
-      return "Password must contain at least one uppercase letter";
-    }
-    if (!/[a-z]/.test(password)) {
-      return "Password must contain at least one lowercase letter";
-    }
-    if (!/[0-9]/.test(password)) {
-      return "Password must contain at least one number";
-    }
+    if (password.length < 8) return "Password must be at least 8 characters";
+    if (!/[A-Z]/.test(password)) return "Must contain an uppercase letter";
+    if (!/[a-z]/.test(password)) return "Must contain a lowercase letter";
+    if (!/[0-9]/.test(password)) return "Must contain a number";
     return undefined;
   };
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-
-    
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = "Full name must be at least 2 characters";
-    }
-
-    
-    if (!formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = "Phone number is required";
-    } else if (!/^\d{9,15}$/.test(formData.phoneNumber.replace(/\s/g, ""))) {
-      newErrors.phoneNumber = "Please enter a valid phone number";
-    }
-
-    
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else {
-      const passwordError = validatePassword(formData.password);
-      if (passwordError) {
-        newErrors.password = passwordError;
-      }
-    }
-
-    
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
+    if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
+    else if (formData.fullName.trim().length < 2) newErrors.fullName = "Full name must be at least 2 characters";
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone number is required";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!validateEmail(formData.email)) newErrors.email = "Please enter a valid email";
+    if (!formData.password) newErrors.password = "Password is required";
+    else { const e = validatePassword(formData.password); if (e) newErrors.password = e; }
+    if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password";
+    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     setIsLoading(true);
+    setErrors({});
 
-    
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const phone = `${formData.countryCode}${formData.phoneNumber.replace(/\s/g, "")}`;
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: formData.fullName,
+          phoneNumber: phone,
+        }),
+      });
 
-      
-      console.log("Form submitted:", formData);
+      const data = await res.json();
 
-      
-      route.push("/auth/verify");
-    } catch (error) {
-      console.error("Sign up error:", error);
-      setErrors({ email: "An error occurred. Please try again." });
+      if (!res.ok) {
+        if (res.status === 409) {
+          setErrors({ email: data.detail ?? "Email already registered" });
+        } else {
+          setErrors({ general: data.detail ?? "Registration failed. Please try again." });
+        }
+        return;
+      }
+
+      // Pass email to verify page via query param
+      router.push(`/auth/verify?email=${encodeURIComponent(formData.email)}`);
+    } catch {
+      setErrors({ general: "Network error. Please check your connection." });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange =
-    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-      
-      if (errors[field as keyof FormErrors]) {
-        setErrors((prev) => ({ ...prev, [field]: undefined }));
-      }
-    };
+  const handleChange = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    if (errors[field as keyof FormErrors]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
 
   return (
     <AuthLayout showcaseContent={<WorldMapShowcase />}>
-      <div className="space-y-10">
+      <div className="space-y-8 w-full">
         <div className="gap-1 flex flex-col">
-          <h1 className="text-xl md:text-[2rem] leading-5 md:leading-10 tracking-[-0%] font-bold text-[#18181B] ">
+          <h1 className="text-xl md:text-[2rem] leading-tight font-bold text-[#18181B]">
             Create an account
           </h1>
-          <p className="text-xs text-[#18181B] leading-[100%] tracking-[0%] ">
-            To start receiving cash gifts
-          </p>
+          <p className="text-xs text-[#717182]">To start sending and receiving cash gifts</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <Input
-            id="fullName"
-            label="Full Name"
-            type="text"
-            placeholder="John Eze"
-            value={formData.fullName}
-            onChange={handleChange("fullName")}
-            error={errors.fullName}
-            autoFocus
-            autoComplete="name"
-          />
+        {errors.general && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm text-red-700">{errors.general}</p>
+          </div>
+        )}
 
-          <PhoneInput
-            id="phoneNumber"
-            label="Phone Number"
-            placeholder="81 123 456 78"
-            value={formData.phoneNumber}
-            onChange={handleChange("phoneNumber")}
-            error={errors.phoneNumber}
-            countryCode={formData.countryCode}
-            onCountryCodeChange={(code) =>
-              setFormData((prev) => ({ ...prev, countryCode: code }))
-            }
-            autoComplete="tel"
-          />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input id="fullName" label="Full Name" type="text" placeholder="John Eze"
+            value={formData.fullName} onChange={handleChange("fullName")}
+            error={errors.fullName} autoFocus autoComplete="name" />
 
-          <Input
-            id="email"
-            label="Email address"
-            type="email"
-            placeholder="john123@gmail.com"
-            value={formData.email}
-            onChange={handleChange("email")}
-            error={errors.email}
-            autoComplete="email"
-          />
+          <PhoneInput id="phoneNumber" label="Phone Number" placeholder="81 123 456 78"
+            value={formData.phoneNumber} onChange={handleChange("phoneNumber")}
+            error={errors.phoneNumber} countryCode={formData.countryCode}
+            onCountryCodeChange={(code) => setFormData((prev) => ({ ...prev, countryCode: code }))}
+            autoComplete="tel" />
 
-          <PasswordInput
-            id="password"
-            label="Password"
-            placeholder="••••••••••••••"
-            value={formData.password}
-            onChange={handleChange("password")}
+          <Input id="email" label="Email address" type="email" placeholder="john123@gmail.com"
+            value={formData.email} onChange={handleChange("email")}
+            error={errors.email} autoComplete="email" />
+
+          <PasswordInput id="password" label="Password" placeholder="••••••••••••••"
+            value={formData.password} onChange={handleChange("password")}
             error={errors.password}
-            helperText="Password must be at least 8 characters and include uppercase, lowercase, and numbers"
-            autoComplete="new-password"
-          />
+            helperText="At least 8 characters with uppercase, lowercase and numbers"
+            autoComplete="new-password" />
 
-          <PasswordInput
-            id="confirmPassword"
-            label="Confirm Password"
-            placeholder="••••••••••••••"
-            value={formData.confirmPassword}
-            onChange={handleChange("confirmPassword")}
-            error={errors.confirmPassword}
-            autoComplete="new-password"
-          />
+          <PasswordInput id="confirmPassword" label="Confirm Password" placeholder="••••••••••••••"
+            value={formData.confirmPassword} onChange={handleChange("confirmPassword")}
+            error={errors.confirmPassword} autoComplete="new-password" />
 
           <div className="pt-2">
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full bg-[#5A42DE]! rounded-lg! text-base! font-medium! cursor-pointer "
-              isLoading={isLoading}
-            >
-              Create Account{" "}
+            <Button type="submit" variant="primary"
+              className="w-full bg-[#5A42DE]! rounded-lg! text-base! font-medium! cursor-pointer"
+              isLoading={isLoading}>
+              Create Account
             </Button>
           </div>
 
-          <p className="text-center text-[14px] text-[#717182] pt-2">
+          <p className="text-center text-sm text-[#717182] pt-1">
             Already have an account?{" "}
-            <Link
-              href="/auth/login"
-              className="text-[#6c5ce7] hover:text-[#5f51d8] font-medium transition-colors"
-            >
+            <Link href="/auth/login" className="text-[#5A42DE] font-semibold hover:opacity-80 transition-opacity">
               Log in
             </Link>
           </p>
@@ -236,4 +170,5 @@ const SignUp: React.FC = () => {
     </AuthLayout>
   );
 };
+
 export default SignUp;
