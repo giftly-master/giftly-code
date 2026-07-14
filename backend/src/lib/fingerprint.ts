@@ -4,7 +4,9 @@ export async function computeFingerprint(
   userAgent: string | null,
   ip: string,
 ): Promise<string> {
-  const input = userAgent ? `${userAgent}|${ip}` : ip;
+  // Use only user-agent for fingerprint — IP changes too often behind
+  // proxies, NAT, and on localhost (127.0.0.1 vs ::1 vs LAN IP).
+  const input = userAgent ?? "unknown";
   const encoded = new TextEncoder().encode(input);
   const hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
